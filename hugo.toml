@@ -1,7 +1,10 @@
-baseURL = "https://yourusername.github.io/your-repo-name/"
+baseURL = "/"
 languageCode = "en-us"
-title = "My Hugo Site"
+title = "CMDK Addon"
 theme = "hextra"
+
+# Suppress known warnings
+ignoreLogs = ["warning-goldmark-raw-html"]
 
 # Enable Git info for last modified dates
 enableGitInfo = true
@@ -24,6 +27,7 @@ enableGitInfo = true
   [params.footer]
     enable = true
     displayCopyright = true
+    displayPoweredBy = false
 
   # Search
   [params.search]
