@@ -1,0 +1,46 @@
+baseURL = "https://yourusername.github.io/your-repo-name/"
+languageCode = "en-us"
+title = "My Hugo Site"
+theme = "hextra"
+
+# Enable Git info for last modified dates
+enableGitInfo = true
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+
+[params]
+  description = "My site built with Hugo and Hextra theme"
+
+  # Navbar
+  [params.navbar]
+    displayTitle = true
+    displayLogo = true
+    [params.navbar.logo]
+      name = "My Site"
+
+  # Footer
+  [params.footer]
+    enable = true
+    displayCopyright = true
+
+  # Search
+  [params.search]
+    enable = true
+    type = "flexsearch"
+
+  # Theme toggle (light/dark)
+  [params.theme]
+    default = "system"
+    displayToggle = true
+
+[menu]
+  [[menu.main]]
+    name = "Docs"
+    pageRef = "/docs"
+    weight = 1
+  [[menu.main]]
+    name = "Blog"
+    pageRef = "/blog"
+    weight = 2
