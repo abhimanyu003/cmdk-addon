@@ -21,7 +21,9 @@ enableGitInfo = true
     displayTitle = true
     displayLogo = true
     [params.navbar.logo]
-      name = "My Site"
+      name = "CMDK Addon"
+      path = "images/logo.svg"
+      dark = "images/logo-dark.svg"
 
   # Footer
   [params.footer]
