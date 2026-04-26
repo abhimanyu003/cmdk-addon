@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CMDK Addon</title>
 
+  <!-- Anti-flicker: apply dark class before first paint -->
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (stored === 'dark' || (!stored && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -32,18 +43,17 @@
   <style>
     body {
       font-family: "Inter", sans-serif;
+      background: #f7f7f4 !important;
     }
 
-    /* Square grid background */
-    .grid-bg {
+    /* Dotted glow background canvas */
+    #dotted-bg {
       position: fixed;
       inset: 0;
       z-index: -9999999;
       pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 40V0h40' fill='none' stroke='%23e5e7eb' stroke-width='0.5'/%3E%3C/svg%3E");
-    }
-    .dark .grid-bg {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 40V0h40' fill='none' stroke='%23ffffff' stroke-width='0.5' opacity='0.07'/%3E%3C/svg%3E");
+      width: 100%;
+      height: 100%;
     }
 
     .handwritten {
@@ -52,8 +62,8 @@
 
     /* Keychron-style low-profile mechanical key */
     .mech-key {
-      width: 50px;
-      height: 50px;
+      width: 55px;
+      height: 55px;
       border-radius: 7px;
       background: linear-gradient(180deg, #1e1e20 0%, #141416 100%);
       box-shadow:
@@ -89,8 +99,8 @@
         inset -1px 0 0 rgba(255,255,255,0.02);
     }
     .mech-key-top {
-      width: 50px;
-      height: 50px;
+      width: 55px;
+      height: 55px;
       border-radius: 5px;
       background:
         radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255,255,255,0.04) 0%, transparent 70%),
@@ -103,7 +113,7 @@
       align-items: center;
       justify-content: center;
       font-size: 20px;
-      font-weight: 600;
+      font-weight: 800;
       color: rgba(255, 255, 255, 0.85);
       letter-spacing: -0.01em;
       text-shadow:
@@ -144,13 +154,6 @@
       color: rgba(210,210,210,0.9);
     }
 
-    /* Glow animation */
-    @keyframes glowMove {
-      0%   { transform: translateX(-20px); opacity: 0.6; }
-      50%  { transform: translateX(20px);  opacity: 1;   }
-      100% { transform: translateX(-20px); opacity: 0.6; }
-    }
-
     .glow-bg {
       content: "";
       position: absolute;
@@ -158,31 +161,57 @@
       border-radius: 9999px;
       width: calc(100% + 4px);
       height: calc(100% + 4px);
-      background: linear-gradient(90deg, rgb(248, 56, 56) 0%, rgb(255, 201, 65) 40%, rgb(95, 124, 228) 76%, rgb(169, 79, 200) 120%);
+      background: linear-gradient(90deg, #f83838 0%, #ffc941 40%, #5f7ce4 76%, #a94fc8 120%);
       filter: blur(25px);
       animation: glowMove 4s ease-in-out infinite;
       z-index: 0;
-      opacity: 0.5;
+      opacity: .5;
+    }
+
+    /* H1 glow effect */
+    .h1glow {
+      position: absolute;
+      inset: 30% 10% -90%;
+      background: linear-gradient(90deg, rgb(255, 115, 0) 0%, rgb(103, 192, 0) 100%);
+      border-radius: 100px;
+      filter: blur(150px);
+      z-index: -1;
+      opacity: 0.12;
+      pointer-events: none;
+      transform: translate3d(0px, 0px, 0px);
     }
 
     /* CTA button */
     .cta-btn {
       position: relative;
-      display: grid;
-      place-items: center;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
       width: 275px;
       height: 58px;
+      padding: 8px 24px 8px 18px;
       background: transparent;
       border: none;
+      border-radius: 50px;
       cursor: pointer;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 22px;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+      text-align: center;
+      text-decoration: none;
+      transition: box-shadow 200ms;
     }
     .cta-btn::before {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 9999px;
+      border-radius: 50px;
       background: #000;
-      transition: inset 0.25s ease;
+      transition: inset 0.25s ease, box-shadow 200ms;
       z-index: -1;
     }
     .dark .cta-btn::before {
@@ -190,14 +219,120 @@
     }
     .cta-btn:hover::before {
       inset: -2px -6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .cta-btn svg {
+      flex-shrink: 0;
+      width: 23px;
+      height: 23px;
+    }
+
+    /* ── Feature cards (ported from gia.html) ───────────────────────────── */
+    .fc-wrap {
+      /* background moved to section for full-width coverage */
+      padding: 48px 40px;
+    }
+    .fc-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      height: 560px;
+    }
+    .fc-card.fc-reverse { flex-direction: row-reverse; }
+    .fc-text {
+      width: 420px;
+      min-width: 340px;
+      flex-shrink: 0;
+      padding: 44px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .fc-media {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .fc-media img, .fc-media video {
+      /* width: 100%; 
+      height: 100%; */
+      object-fit: cover;
+      background: linear-gradient(135deg, #d0415e 0.000%, #d0415e 20.000%, #d65767 calc(20.000% + 1px), #d65767 40.000%, #db7971 calc(40.000% + 1px), #db7971 60.000%, #e0a57c calc(60.000% + 1px), #e0a57c 80.000%, #e6d886 calc(80.000% + 1px) 100.000%);;
+      /* -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%); */
+      /* mask-image: linear-gradient(to bottom, transparent 0%, black 12%); */
+    }
+    .fc-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px;
+      border-radius: 1000px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 28px;
+    }
+    .fc-gradient-text {
+      background: linear-gradient(90deg, #88bbf5 0%, #fff 40%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .fc-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 1000px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 13px;
+      text-decoration: none;
+      transition: background 0.2s;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .fc-pill:hover { background: rgba(255,255,255,0.1); }
+    .fc-play {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border-radius: 1000px;
+      backdrop-filter: blur(20px);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      z-index: 2;
+    }
+    @media (max-width: 1100px) and (min-width: 901px) {
+      .fc-card { height: 480px; }
+      .fc-text { width: 360px; min-width: 300px; padding: 32px 28px; }
+    }
+    @media (max-width: 900px) {
+      .fc-wrap { padding: 24px 16px; border-radius: 16px; }
+      .fc-card, .fc-card.fc-reverse { flex-direction: column; height: auto; }
+      .fc-text { width: 100%; min-width: unset; padding: 28px 20px; }
+      .fc-media { height: 260px; }
     }
   </style>
 </head>
 
 <body class="bg-white dark:bg-gray-950">
 
-  <!-- Square grid background -->
-  <div class="grid-bg"></div>
+  <!-- Dotted glow background -->
+  <canvas id="dotted-bg"></canvas>
 
   <!-- Dark Mode Toggle -->
   <button
@@ -214,18 +349,18 @@
     </svg>
   </button>
 
-  <section class="flex items-start justify-center text-center px-6 pt-24 pb-32">
+  <section class="flex items-start justify-center text-center px-6 pt-24 pb-[12rem]">
     <div class="max-w-4xl w-full">
 
       <!-- Keys icon -->
-      <div class="flex justify-center items-center gap-3 mb-5">
+      <div class="flex justify-center items-center gap-1 mb-5">
         <div class="mech-key"><div class="mech-key-top">⌘</div></div>
         <div class="text-lg text-gray-400 dark:text-gray-500 font-medium select-none">+</div>
         <div class="mech-key"><div class="mech-key-top">K</div></div>
       </div>
 
       <!-- Brand -->
-      <div class="text-5xl font-semibold mb-1 text-black dark:text-white">cmdk</div>
+      <div class="text-4xl font-semibold mb-1 text-black dark:text-white tracking-tight-03">cmdk</div>
 
       <!-- Tagline -->
       <div class="text-md handwritten text-gray-500 dark:text-gray-400 mb-10">
@@ -233,35 +368,456 @@
       </div>
 
       <!-- Heading -->
-      <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-5 text-black dark:text-white tracking-tight-03">
-        The command palette <br>Your browser was missing
-      </h1>
+      <div class="relative">
+        <div class="h1glow"></div>
+        <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-5 text-black dark:text-white tracking-tight-03">
+          The command palette <br>Your browser was missing
+        </h1>
+      </div>
 
-      <p class="text-5xl md:text-3xl font-extralight leading-tight mb-[5rem] text-black dark:text-gray-300">
-        Search and Navigate through tabs, bookmarks, and more...
+      <p class="text-5xl md:text-3xl font-light leading-tight mb-[5rem] text-black dark:text-gray-300 tracking-tight-03">
+        Search and Navigate through tabs, bookmarks, recently closed and more...
       </p>
 
       <!-- CTA Button -->
       <div class="relative inline-flex items-center justify-center">
         <div class="glow-bg"></div>
-        <a href="https://chromewebstore.google.com/detail/cmdk-command-palette/ejkkibnhfeccfnofeimpialoaipkojdc" target="_blank" rel="noopener noreferrer" class="cta-btn relative z-10 text-white dark:text-black rounded-full text-base font-medium shadow-none flex items-center justify-center gap-2">
-          Install for Chrome
+        <a href="https://chromewebstore.google.com/detail/cmdk-command-palette/ejkkibnhfeccfnofeimpialoaipkojdc">
+          <button class="cta-btn relative z-10 text-white dark:text-black">  
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48"><defs><linearGradient id="a" x1="3.2173" y1="15" x2="44.7812" y2="15" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d93025"/><stop offset="1" stop-color="#ea4335"/></linearGradient><linearGradient id="b" x1="20.7219" y1="47.6791" x2="41.5039" y2="11.6837" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fcc934"/><stop offset="1" stop-color="#fbbc04"/></linearGradient><linearGradient id="c" x1="26.5981" y1="46.5015" x2="5.8161" y2="10.506" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1e8e3e"/><stop offset="1" stop-color="#34a853"/></linearGradient></defs><circle cx="24" cy="23.9947" r="12" style="fill:#fff"/><path d="M3.2154,36A24,24,0,1,0,12,3.2154,24,24,0,0,0,3.2154,36ZM34.3923,18A12,12,0,1,1,18,13.6077,12,12,0,0,1,34.3923,18Z" style="fill:none"/><path d="M24,12H44.7812a23.9939,23.9939,0,0,0-41.5639.0029L13.6079,30l.0093-.0024A11.9852,11.9852,0,0,1,24,12Z" style="fill:url(#a)"/><circle cx="24" cy="24" r="9.5" style="fill:#1a73e8"/><path d="M34.3913,30.0029,24.0007,48A23.994,23.994,0,0,0,44.78,12.0031H23.9989l-.0025.0093A11.985,11.985,0,0,1,34.3913,30.0029Z" style="fill:url(#b)"/><path d="M13.6086,30.0031,3.218,12.006A23.994,23.994,0,0,0,24.0025,48L34.3931,30.0029l-.0067-.0068a11.9852,11.9852,0,0,1-20.7778.007Z" style="fill:url(#c)"/></svg>
+            <span>Install for Chrome</span>
+          </button>
         </a>
       </div>
 
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="border-t border-gray-200 dark:border-gray-800 py-4 px-6">
-    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500">
-      <span>© 2026 CMDK Addon</span>
-      <a href="https://cmdk-addon.com/docs/" class="hover:text-black dark:hover:text-white transition-colors duration-150">Docs</a>
-      <a href="https://chromewebstore.google.com/detail/cmdk-command-palette/ejkkibnhfeccfnofeimpialoaipkojdc" target="_blank" rel="noopener noreferrer" class="hover:text-black dark:hover:text-white transition-colors duration-150">Chrome Extension</a>
-      <a href="https://abhimanyu003.gumroad.com/l/cmdk-addon" target="_blank" rel="noopener noreferrer" class="hover:text-black dark:hover:text-white transition-colors duration-150">Buy on Gumroad</a>
-      <a href="https://cmdk-addon.com/docs/privacy/" class="hover:text-black dark:hover:text-white transition-colors duration-150">Privacy</a>
+    <!-- ═══ Video Section ═══ -->
+  <!-- <section class="w-full px-6 pb-24">
+    <div class="max-w-7xl mx-auto rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800">
+      <img
+        class="w-full block"
+        src="https://placehold.co/1200x675/1a1a1c/71717a?text=Demo+Video"
+        alt="CMDK demo preview"
+      />
     </div>
-  </footer>
+  </section> -->
+
+  <!-- ═══ Feature Cards ═══ -->
+  <section class="w-full" style="background:#0f0f11;">
+    <div class="fc-wrap mx-auto max-w-7xl flex flex-col gap-12">
+
+      <!-- Card 1 — text left, image right -->
+      <div class="fc-card">
+        <div class="fc-text">
+          <div>
+            <div class="fc-tag">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+              Fuzzy Search
+            </div>
+            <div class="flex items-center gap-3 mb-5">
+              <h2 class="text-[28px] leading-[36px] fc-gradient-text font-semibold">Search Everything</h2>
+              <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><path d="M7 19L19 7M19 7H9M19 7V17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <p class="text-white/50 leading-7 mb-8 text-sm">
+              Tabs, bookmarks, history, downloads — all in one place. Typo-tolerant, multi-word, score-ranked results that surface the right thing instantly.
+            </p>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Case-insensitive fuzzy matching across title, URL and keywords</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Two-word AND logic — "github pull" only shows items matching both</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Shorthand prefixes — :b bookmarks · :h history · :t tabs · :c commands</span>
+              </div>
+            </div>
+          </div>
+          <a href="#" class="fc-pill mt-8">Explore Search</a>
+        </div>
+        <div class="fc-media">
+          <img src="{{ "images/tabs.png" | relURL }}" alt="Calculator and Timezones" loading="lazy" />
+          <div class="fc-play">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 — image left, text right -->
+      <div class="fc-card fc-reverse">
+        <div class="fc-text">
+          <div>
+            <div class="fc-tag">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-violet-400"></span>
+              Calculator
+            </div>
+            <div class="flex items-center gap-3 mb-5">
+              <h2 class="text-[28px] leading-[36px] fc-gradient-text font-semibold">Built-in Calculator</h2>
+              <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><path d="M7 19L19 7M19 7H9M19 7V17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <p class="text-white/50 leading-7 mb-8 text-sm">
+              Math, unit conversions, percentages, and timezone lookups — all without leaving the palette. Type "time in Berlin" or "2:30 pm HKT in New York" and get an instant answer.
+            </p>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">70+ timezone aliases — cities, abbreviations, IANA names</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Date arithmetic — "now + 12 days", "today + 1 year"</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Unix timestamps — encode and decode in one keystroke</span>
+              </div>
+            </div>
+          </div>
+          <a href="#" class="fc-pill mt-8">Explore Calculator</a>
+        </div>
+        <div class="fc-media">
+          <img src="{{ "images/cal.png" | relURL }}" alt="Calculator and Timezones" loading="lazy" />
+          <div class="fc-play">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play
+          </div>
+        </div>
+      </div>
+      <!-- section 2n ends -->
+
+      <!-- Card 3 -->
+          <div class="fc-card">
+        <div class="fc-text">
+          <div>
+            <div class="fc-tag">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+              Fuzzy Search
+            </div>
+            <div class="flex items-center gap-3 mb-5">
+              <h2 class="text-[28px] leading-[36px] fc-gradient-text font-semibold">Search Emoji</h2>
+              <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><path d="M7 19L19 7M19 7H9M19 7V17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <p class="text-white/50 leading-7 mb-8 text-sm">
+              Find the right emoji fast: search by name, keyword, shortcode, or vibe, with  handling typos and multi-word matches so the perfect reaction is always a few keystrokes away.
+            </p>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Case-insensitive fuzzy matching across title, URL and keywords</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Two-word AND logic — "github pull" only shows items matching both</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-5 h-5 mt-0.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(136,187,245,0.8)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="text-white/40 text-sm leading-6">Shorthand prefixes — :b bookmarks · :h history · :t tabs · :c commands</span>
+              </div>
+            </div>
+          </div>
+          <a href="#" class="fc-pill mt-8">Explore Search</a>
+        </div>
+        <div class="fc-media">
+          <img src="{{ "images/tabs.png" | relURL }}" alt="Calculator and Timezones" loading="lazy" />
+          <div class="fc-play">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    // ── Dotted Glow Background (optimised) ─────────────────────────────────
+    (function () {
+      const canvas = document.getElementById('dotted-bg');
+      const ctx    = canvas.getContext('2d', { alpha: true });
+
+      // ── Config ────────────────────────────────────────────────────────────
+      const GAP         = 20;    // dot grid spacing (px)
+      const RADIUS      = 2;  // base dot radius
+      const OPACITY     = 0.4;   // global layer opacity
+      const SPEED_MIN   = 0.3;
+      const SPEED_MAX   = 2.0;
+      const GLOW_RADIUS = 1;   // cursor glow spread (px)
+      const GLOW_R2     = GLOW_RADIUS * GLOW_RADIUS; // squared — avoids sqrt in hot path
+
+      // Detect low-end: ≤2 logical cores or mobile UA
+      const IS_LOW_END  = (navigator.hardwareConcurrency || 4) <= 2 ||
+                          /Mobi|Android/i.test(navigator.userAgent);
+      // On low-end devices use a coarser grid and cap at 30 fps
+      const EFFECTIVE_GAP = IS_LOW_END ? 30 : GAP;
+      const FPS_CAP       = IS_LOW_END ? 30 : 60;
+      const FRAME_MS      = 1000 / FPS_CAP;
+
+      // Colours (light / dark)
+      const COLOR_LIGHT      = 'rgba(0,0,0,1)';
+      const COLOR_DARK       = 'rgba(255,255,255,1)';
+      const GLOW_COLOR_LIGHT = 'rgba(0,170,255,1) ';
+      const GLOW_COLOR_DARK  = 'rgba(0,200,255,1)';
+
+      // ── Sine LUT (1024 entries) — replaces Math.sin in the hot loop ───────
+      const LUT_SIZE  = 1024;
+      const LUT_SCALE = LUT_SIZE / (Math.PI * 2);
+      const sinLUT    = new Float32Array(LUT_SIZE);
+      for (let i = 0; i < LUT_SIZE; i++) sinLUT[i] = Math.sin((i / LUT_SIZE) * Math.PI * 2);
+
+      function fastSin(x) {
+        // Wrap x into [0, 2π) then index into LUT
+        const idx = ((x * LUT_SCALE) | 0) & (LUT_SIZE - 1);
+        return sinLUT[idx < 0 ? idx + LUT_SIZE : idx];
+      }
+
+      // ── Structure-of-Arrays dot storage (cache-friendly, JIT-friendly) ────
+      let dotX, dotY, dotPhase, dotSpeed; // Float32Arrays
+      let dotCount = 0;
+
+      // ── Offscreen glow sprite — drawn once, reused every frame ────────────
+      // Eliminates ctx.shadowBlur per dot (the single biggest perf killer).
+      const SPRITE_R    = RADIUS + 2.5 + 4; // max possible radius + glow halo
+      const SPRITE_SIZE = Math.ceil(SPRITE_R * 2 + 20); // canvas px (odd-ish)
+      const SPRITE_HALF = SPRITE_SIZE / 2;
+
+      let glowSpriteLight = null;
+      let glowSpriteDark  = null;
+
+      function buildGlowSprite(color) {
+        const oc  = document.createElement('canvas');
+        oc.width  = SPRITE_SIZE;
+        oc.height = SPRITE_SIZE;
+        const oc2 = oc.getContext('2d');
+
+        // Outer soft halo via radial gradient (no shadowBlur needed)
+        const grad = oc2.createRadialGradient(
+          SPRITE_HALF, SPRITE_HALF, 0,
+          SPRITE_HALF, SPRITE_HALF, SPRITE_HALF
+        );
+        // Parse the rgba color string to get the base colour without alpha
+        // e.g. 'rgba(0,170,255,0.9)' → 'rgb(0,170,255)'
+        const rgb = color.replace(/rgba?\(([^,]+,[^,]+,[^,]+).*/, 'rgb($1)');
+        grad.addColorStop(0,   color);          // bright centre
+        grad.addColorStop(0.3, color);
+        grad.addColorStop(1,   rgb.replace('rgb', 'rgba').replace(')', ',0)'));
+
+        oc2.fillStyle = grad;
+        oc2.beginPath();
+        oc2.arc(SPRITE_HALF, SPRITE_HALF, SPRITE_HALF, 0, Math.PI * 2);
+        oc2.fill();
+        return oc;
+      }
+
+      // ── State ─────────────────────────────────────────────────────────────
+      let mouse    = { x: -9999, y: -9999 };
+      let darkMode = document.documentElement.classList.contains('dark');
+      let W = 0, H = 0; // cached viewport size (logical px)
+      let rafId    = null;
+      let lastTs   = 0;
+
+      // Watch theme changes without polling
+      new MutationObserver(() => {
+        darkMode = document.documentElement.classList.contains('dark');
+      }).observe(document.documentElement, { attributeFilter: ['class'] });
+
+      // ── Resize (debounced) ────────────────────────────────────────────────
+      let resizeTimer = null;
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, IS_LOW_END ? 1 : 2);
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width        = W * dpr;
+        canvas.height       = H * dpr;
+        canvas.style.width  = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.scale(dpr, dpr);
+        buildDots();
+        // Rebuild sprites (colours don't change on resize, but size might)
+        glowSpriteLight = buildGlowSprite(GLOW_COLOR_LIGHT);
+        glowSpriteDark  = buildGlowSprite(GLOW_COLOR_DARK);
+      }
+
+      function debouncedResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resize, 150);
+      }
+
+      // ── Build dot arrays (SoA) ────────────────────────────────────────────
+      function buildDots() {
+        const cols = Math.ceil(W / EFFECTIVE_GAP) + 1;
+        const rows = Math.ceil(H / EFFECTIVE_GAP) + 1;
+        dotCount   = cols * rows;
+        dotX       = new Float32Array(dotCount);
+        dotY       = new Float32Array(dotCount);
+        dotPhase   = new Float32Array(dotCount);
+        dotSpeed   = new Float32Array(dotCount);
+        let i = 0;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++, i++) {
+            dotX[i]     = c * EFFECTIVE_GAP;
+            dotY[i]     = r * EFFECTIVE_GAP;
+            dotPhase[i] = Math.random() * Math.PI * 2;
+            dotSpeed[i] = SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN);
+          }
+        }
+      }
+
+      // ── Main draw loop ────────────────────────────────────────────────────
+      function draw(ts) {
+        rafId = requestAnimationFrame(draw);
+
+        // FPS cap: skip frame if not enough time has elapsed
+        const elapsed = ts - lastTs;
+        if (elapsed < FRAME_MS) return;
+        lastTs = ts - (elapsed % FRAME_MS); // keep phase aligned
+
+        const t          = ts / 1000;
+        const baseColor  = darkMode ? COLOR_DARK       : COLOR_LIGHT;
+        const glowSprite = darkMode ? glowSpriteDark   : glowSpriteLight;
+        const FADE_WIDTH = W * 0.38;
+        const mx         = mouse.x;
+        const my         = mouse.y;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // ── Pass 1: base dots (no shadow, batched state) ───────────────────
+        ctx.shadowBlur = 0;
+        ctx.fillStyle  = baseColor;
+
+        for (let i = 0; i < dotCount; i++) {
+          const x = dotX[i];
+
+          // Side-fade: skip invisible centre dots
+          const distFromEdge = x < W - x ? x : W - x; // Math.min inlined
+          const sideFade = 1 - distFromEdge / FADE_WIDTH;
+          if (sideFade <= 0.01) continue;
+          const sf = sideFade < 1 ? sideFade : 1; // clamp max
+
+          const y     = dotY[i];
+          const dx    = x - mx;
+          const dy    = y - my;
+          const dist2 = dx * dx + dy * dy;
+
+          // Skip glow dots in this pass — handle them in pass 2
+          if (dist2 < GLOW_R2) continue;
+
+          const pulse = 0.5 + 0.5 * fastSin(t * dotSpeed[i] + dotPhase[i]);
+
+          ctx.globalAlpha = sf * OPACITY * (0.4 + 0.6 * pulse);
+          ctx.beginPath();
+          ctx.arc(x, y, RADIUS, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // ── Pass 2: glow dots near cursor (drawImage sprite, no shadowBlur) ─
+        for (let i = 0; i < dotCount; i++) {
+          const x    = dotX[i];
+          const dx   = x - mx;
+          const dy   = dotY[i] - my;
+          const dist2 = dx * dx + dy * dy;
+          if (dist2 >= GLOW_R2) continue;
+
+          const distFromEdge = x < W - x ? x : W - x;
+          const sideFade = 1 - distFromEdge / FADE_WIDTH;
+          if (sideFade <= 0.01) continue;
+          const sf = sideFade < 1 ? sideFade : 1;
+
+          const dist  = Math.sqrt(dist2); // sqrt only for the ~few glow dots
+          const near  = 1 - dist / GLOW_RADIUS;
+          const y     = dotY[i];
+          const pulse = 0.5 + 0.5 * fastSin(t * dotSpeed[i] + dotPhase[i]);
+
+          // Scale sprite to match current glow size
+          const r     = RADIUS + near * 2.5 * pulse;
+          const scale = (r + 8) / SPRITE_HALF; // 8px halo padding
+          const half  = SPRITE_HALF * scale;
+
+          ctx.globalAlpha = sf * OPACITY * (0.5 + 0.5 * near * pulse);
+          ctx.drawImage(glowSprite, x - half, y - half, half * 2, half * 2);
+        }
+
+        ctx.globalAlpha = 1;
+      }
+
+      // ── Input ─────────────────────────────────────────────────────────────
+      window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+      window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+      window.addEventListener('touchmove', e => {
+        const t = e.touches[0];
+        mouse.x = t.clientX;
+        mouse.y = t.clientY;
+      }, { passive: true });
+      window.addEventListener('touchend', () => { mouse.x = -9999; mouse.y = -9999; }, { passive: true });
+      window.addEventListener('resize', debouncedResize, { passive: true });
+
+      // Pause animation when tab is hidden to save battery/CPU
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        } else {
+          if (!rafId) { lastTs = 0; rafId = requestAnimationFrame(draw); }
+        }
+      });
+
+      // ── Boot ──────────────────────────────────────────────────────────────
+      resize();
+      rafId = requestAnimationFrame(draw);
+    })();
+  </script>
+
+  <script>
+    // ── Timeline scroll beam ──────────────────────────────────────────────
+    // Animates the vertical gradient line to grow as the user scrolls
+    // through the timeline section, matching the Aceternity design.
+    (function () {
+      const section  = document.getElementById('timeline-section');
+      const beam     = document.getElementById('timeline-beam');
+      const entries  = document.getElementById('timeline-entries');
+      if (!section || !beam || !entries) return;
+
+      function updateBeam() {
+        const sectionRect = entries.getBoundingClientRect();
+        const totalH      = entries.offsetHeight;
+        if (totalH === 0) return;
+
+        // How far the top of the entries block is above the viewport midpoint
+        const viewMid    = window.innerHeight * 0.5;
+        const scrolled   = viewMid - sectionRect.top;
+        const pct        = Math.min(Math.max(scrolled / totalH, 0), 1);
+
+        beam.style.height = (pct * 100) + '%';
+      }
+
+      window.addEventListener('scroll', updateBeam, { passive: true });
+      window.addEventListener('resize', updateBeam, { passive: true });
+      updateBeam();
+    })();
+  </script>
 
   <script>
     const toggle = document.getElementById('theme-toggle');
@@ -286,7 +842,16 @@
     });
   </script>
 
-<!-- Google tag (gtag.js) -->
+  <footer class="border-t border-gray-200 dark:border-gray-800 py-4 px-6">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500">
+      <span>© 2026 CMDK Addon</span>
+      <a href="https://cmdk-addon.com/docs/" class="hover:text-black dark:hover:text-white transition-colors duration-150">Docs</a>
+      <a href="https://chromewebstore.google.com/detail/cmdk-command-palette/ejkkibnhfeccfnofeimpialoaipkojdc" target="_blank" rel="noopener noreferrer" class="hover:text-black dark:hover:text-white transition-colors duration-150">Chrome Extension</a>
+      <a href="https://abhimanyu003.gumroad.com/l/cmdk-addon" target="_blank" rel="noopener noreferrer" class="hover:text-black dark:hover:text-white transition-colors duration-150">Buy on Gumroad</a>
+      <a href="https://cmdk-addon.com/docs/privacy/" class="hover:text-black dark:hover:text-white transition-colors duration-150">Privacy</a>
+    </div>
+  </footer>
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZQQVFFCYWJ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
