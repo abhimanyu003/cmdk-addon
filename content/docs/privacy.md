@@ -81,6 +81,18 @@ All data is stored locally on your device using the browser's extension storage 
 
 No browsing data (tabs, bookmarks, history, downloads, sessions) is ever written to storage. It is fetched from browser APIs into memory when you open the palette and discarded when you close it.
 
+### Google Authentication and Google Calendar Access
+
+CMDK Addon requests Google authentication only if you choose to enable Google Calendar features.
+
+Google authentication is used to let CMDK Addon access your Google Calendar with read-only permission. The extension requests the `https://www.googleapis.com/auth/calendar.readonly` scope so it can display your calendar events inside CMDK Addon. This permission does not allow CMDK Addon to create, edit, delete, or manage calendar events.
+
+CMDK Addon does not use Google authentication for advertising, analytics, tracking, profiling, or sharing data with third parties. Calendar data is used only to show your calendar information inside the extension.
+
+Google sign-in may also provide basic account identity information, such as your email address and profile identity, as part of the authentication process. CMDK Addon uses this only to complete the Google sign-in flow and associate the read-only Calendar access with the correct Google account.
+
+CMDK Addon does not request access to Gmail, Google Drive, Contacts, or any other Google services. It only uses Google Calendar read-only access.
+
 ## What CMDK does NOT do
 
 - Does not collect or transmit personal information.
