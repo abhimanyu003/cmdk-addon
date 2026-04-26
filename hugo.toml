@@ -14,7 +14,7 @@ enableGitInfo = true
     noClasses = false
 
 [params]
-  description = "My site built with Hugo and Hextra theme"
+  description = "The command palette your browser was missing."
 
   # Navbar
   [params.navbar]
