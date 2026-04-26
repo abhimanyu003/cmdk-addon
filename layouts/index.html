@@ -228,6 +228,71 @@
       height: 23px;
     }
 
+    .float-nav {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      left: auto;
+      z-index: 60;
+      transform: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      max-width: calc(100vw - 40px);
+      min-height: 46px;
+      padding: 5px 8px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.10);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .dark .float-nav {
+      border-color: rgba(255, 255, 255, 0.10);
+      background: rgba(18, 18, 20, 0.66);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32);
+    }
+    .float-nav a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      color: #111;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 160ms ease, color 160ms ease;
+    }
+    .dark .float-nav a {
+      color: rgba(255, 255, 255, 0.90);
+    }
+    .float-nav a:hover {
+      background: rgba(15, 23, 42, 0.07);
+    }
+    .dark .float-nav a:hover {
+      background: rgba(255, 255, 255, 0.10);
+    }
+    .float-nav svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+    .float-nav-divider {
+      width: 1px;
+      height: 24px;
+      margin: 0 5px;
+      background: rgba(15, 23, 42, 0.13);
+    }
+    .dark .float-nav-divider {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
     /* ── Feature cards (ported from gia.html) ───────────────────────────── */
     .fc-wrap {
       /* background moved to section for full-width coverage */
@@ -327,6 +392,24 @@
       .fc-text { width: 100%; min-width: unset; padding: 28px 20px; }
       .fc-media { height: 260px; }
     }
+    @media (max-width: 560px) {
+      .float-nav {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        transform: none;
+        justify-content: center;
+        padding: 5px;
+      }
+      .float-nav a {
+        padding: 0 9px;
+        font-size: 13px;
+      }
+      .float-nav-divider {
+        margin: 0 2px;
+      }
+    }
   </style>
 </head>
 
@@ -335,20 +418,20 @@
   <!-- Dotted glow background -->
   <canvas id="dotted-bg"></canvas>
 
-  <!-- Dark Mode Toggle -->
-  <button
-    id="theme-toggle"
-    class="fixed top-5 right-5 z-50 w-11 h-11 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200"
-    aria-label="Toggle dark mode"
-  >
-    <svg id="icon-sun" class="w-5 h-5 text-yellow-400 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="5" />
-      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-    </svg>
-    <svg id="icon-moon" class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" />
-    </svg>
-  </button>
+  <nav class="float-nav" aria-label="Primary">
+    <a href="https://cmdk-addon.com/docs/">Docs</a>
+    <a href="https://cmdk-addon.com/docs/privacy/">Privacy</a>
+    <span class="float-nav-divider" aria-hidden="true"></span>
+    <a href="https://abhimanyu003.gumroad.com/l/cmdk-addon" target="_blank" rel="noopener noreferrer">Buy from Gumroad</a>
+    <span class="float-nav-divider" aria-hidden="true"></span>
+    <a href="https://chromewebstore.google.com/detail/cmdk-command-palette/ejkkibnhfeccfnofeimpialoaipkojdc" target="_blank" rel="noopener noreferrer" aria-label="Download CMDK from the Chrome Web Store">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3v11m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17v2h14v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Download</span>
+    </a>
+  </nav>
 
   <section class="flex items-start justify-center text-center px-6 pt-24 pb-[12rem]">
     <div class="max-w-4xl w-full">
@@ -517,7 +600,7 @@
               <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><path d="M7 19L19 7M19 7H9M19 7V17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
             <p class="text-white/50 leading-7 mb-8 text-sm">
-              Find the right emoji fast: search by name, keyword, shortcode, or vibe, with  handling typos and multi-word matches so the perfect reaction is always a few keystrokes away.
+              Find the right emoji fast: search by name, keyword, shortcode, or vibe, with smart matching for typos and multi-word phrases so the perfect reaction is always a few keystrokes away.
             </p>
             <div class="flex flex-col gap-3">
               <div class="flex items-start gap-3">
@@ -818,29 +901,6 @@
       window.addEventListener('resize', updateBeam, { passive: true });
       updateBeam();
     })();
-  </script>
-
-  <script>
-    const toggle = document.getElementById('theme-toggle');
-    const sun = document.getElementById('icon-sun');
-    const moon = document.getElementById('icon-moon');
-
-    function applyTheme(dark) {
-      document.documentElement.classList.toggle('dark', dark);
-      sun.classList.toggle('hidden', !dark);
-      moon.classList.toggle('hidden', dark);
-    }
-
-    // Init from localStorage or system preference
-    const stored = localStorage.getItem('theme');
-    applyTheme(stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches));
-
-    toggle.addEventListener('click', () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      sun.classList.toggle('hidden', !isDark);
-      moon.classList.toggle('hidden', isDark);
-    });
   </script>
 
   <footer class="border-t border-gray-200 dark:border-gray-800 py-4 px-6">
